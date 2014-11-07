@@ -3,7 +3,7 @@
     "description": "common static functions",
     "license": "MIT",
     "keywords": ["tools", "utils"],
-    "version": "1.0.0",
+    "version": "v1.0.0",
     "authors": [
         {
             "name": "Jenner",

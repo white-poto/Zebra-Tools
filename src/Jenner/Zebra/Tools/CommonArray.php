@@ -18,7 +18,9 @@ class CommonArray {
      */
     public static function columnValue($column, $array){
         $result = [];
+        $array = (array)$array;
         foreach($array as $value){
+            $value = (array)$value;
             $result[] = empty($value[$column]) ? null : $value[$column];
         }
         return $result;
