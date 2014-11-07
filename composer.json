@@ -2,7 +2,7 @@
     "name": "jenner/tools",
     "description": "common static functions",
     "license": "MIT",
-    "keywords": ["message queue"],
+    "keywords": ["tools", "utils"],
     "version": "1.0.0",
     "authors": [
         {
