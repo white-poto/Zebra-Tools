@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: Administrator
+ * User: Jenner
  * Date: 14-11-17
  * Time: 上午11:28
  */
@@ -100,6 +100,8 @@ class Http {
                 }
                 curl_setopt($curl, CURLOPT_POSTFIELDS, $postFields);
             }
+        }elseif($params){
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $params);
         }
 
         $content = curl_exec($curl);

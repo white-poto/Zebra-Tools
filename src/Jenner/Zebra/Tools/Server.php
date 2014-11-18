@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: Administrator
+ * User: Jenner
  * Date: 14-11-17
  * Time: 下午2:15
  */
@@ -16,7 +16,7 @@ class Server {
      * @param int $type
      * @return string
      */
-    protected static function getIp($type = 0)
+    public static function getIp($type = 0)
     {
         if (!empty($_SERVER["HTTP_CLIENT_IP"])) $cip = $_SERVER["HTTP_CLIENT_IP"];
         else if (!empty($_SERVER["HTTP_X_FORWARDED_FOR"])) $cip = $_SERVER["HTTP_X_FORWARDED_FOR"];
