@@ -65,9 +65,9 @@ class Http {
         curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
         curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, $this->timeOut);
         curl_setopt($curl, CURLOPT_TIMEOUT, $this->transferTimeOut);
-        $this->http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
         $content = curl_exec($curl);
+        $this->http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
 
         return $content;
@@ -107,6 +107,7 @@ class Http {
         }
 
         $content = curl_exec($curl);
+        $this->http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
 
         return $content;
