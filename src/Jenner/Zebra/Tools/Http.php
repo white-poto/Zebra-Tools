@@ -12,19 +12,33 @@ namespace Jenner\Zebra\Tools;
 class Http {
 
     private $url;
+    //代理IP
     private $proxyIp;
+    //代理服务器端口
     private $proxyPort;
+    //超时时间
     private $timeOut;
-    private $transferTimeOut;
-    private $http_status;
+    //连接超时时间
+    private $connectTimeout;
+    //HTTP响应状态码
+    private $httpStatus;
 
-    public function __construct($url, $proxyIp = '', $proxyPort = 0, $timeOut = 10, $transferTimeOut = 600) {
+    /**
+     * @param $url
+     * @param string $proxyIp
+     * @param int $proxyPort
+     * @param int $connectTimeout
+     * @param int $timeOut
+     * @throws \Exception
+     * @internal param int $transferTimeOut
+     */
+    public function __construct($url, $proxyIp = '', $proxyPort = 0, $connectTimeout = 10, $timeOut = 300) {
 
         //URL地址
-        if (!$url) throw new JetException("必须指定URL地址！");
+        if (!$url) throw new \Exception("必须指定URL地址！");
         $this->url = $url;
         $this->timeOut = $timeOut;
-        $this->transferTimeOut = $transferTimeOut;
+        $this->connectTimeout = $connectTimeout;
 
         //代理服务器I的设置
         if ($proxyIp) {
@@ -34,6 +48,11 @@ class Http {
 
     }
 
+    /**
+     * 设置代理服务器
+     * @param $ip
+     * @param int $port
+     */
     public function setProxy($ip, $port = 80) {
         if ($ip) {
             $this->proxyIp = $ip;
@@ -41,6 +60,11 @@ class Http {
         }
     }
 
+    /**
+     * GET请求
+     * @param null $params
+     * @return mixed
+     */
     public function GET($params = null) {
 
         //组合带参数的URL
@@ -56,15 +80,8 @@ class Http {
 
         //初始化curl
         $curl = curl_init();
-        if ($this->proxyIp && $this->proxyPort) {
-            $proxy = "http://{$this->proxyIp}:{$this->proxyPort}";
-            curl_setopt($curl, CURLOPT_PROXY, $proxy);
-        }
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
-        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, $this->timeOut);
-        curl_setopt($curl, CURLOPT_TIMEOUT, $this->transferTimeOut);
+        $this->initProxy($curl);
+        $this->initCurlParam($curl);
 
         $content = curl_exec($curl);
         $this->http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
@@ -74,19 +91,19 @@ class Http {
 
     }
 
+    /**
+     * POST请求，支持文件上传
+     * 文件上传的params格式['key'=>'@file_path/filename']
+     * @param null $params
+     * @param bool $fileUpload
+     * @return mixed
+     */
     public function POST($params = null, $fileUpload = false) {
 
         //初始化curl
         $curl = curl_init();
-        if ($this->proxyIp && $this->proxyPort) {
-            $proxy = "http://{$this->proxyIp}:{$this->proxyPort}";
-            curl_setopt($curl, CURLOPT_PROXY, $proxy);
-        }
-        curl_setopt($curl, CURLOPT_URL, $this->url);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
-        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, $this->timeOut);
-        curl_setopt($curl, CURLOPT_TIMEOUT, $this->transferTimeOut);
+        $this->initProxy($curl);
+        $this->initCurlParam($curl);
 
         //设置POST参数
         curl_setopt($curl, CURLOPT_POST, 1);
@@ -114,8 +131,37 @@ class Http {
 
     }
 
+    /**
+     * 获取HTTP状态码
+     * @return mixed
+     */
     public function getStatus(){
-        return $this->http_status;
+        return $this->httpStatus;
+    }
+
+    /**
+     * 初始化代理
+     * @param $curl
+     */
+    private function initProxy($curl)
+    {
+        if ($this->proxyIp && $this->proxyPort) {
+            $proxy = "http://{$this->proxyIp}:{$this->proxyPort}";
+            curl_setopt($curl, CURLOPT_PROXY, $proxy);
+        }
+    }
+
+    /**
+     * 初始化CURL参数
+     * @param $curl
+     */
+    private function initCurlParam($curl)
+    {
+        curl_setopt($curl, CURLOPT_URL, $this->url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
+        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, $this->connectTimeout);
+        curl_setopt($curl, CURLOPT_TIMEOUT, $this->timeOut);
     }
 
 }
