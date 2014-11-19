@@ -16,6 +16,7 @@ class Http {
     private $proxyPort;
     private $timeOut;
     private $transferTimeOut;
+    private $http_status;
 
     public function __construct($url, $proxyIp = '', $proxyPort = 0, $timeOut = 10, $transferTimeOut = 600) {
 
@@ -64,6 +65,7 @@ class Http {
         curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
         curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, $this->timeOut);
         curl_setopt($curl, CURLOPT_TIMEOUT, $this->transferTimeOut);
+        $this->http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
         $content = curl_exec($curl);
         curl_close($curl);
@@ -109,6 +111,10 @@ class Http {
 
         return $content;
 
+    }
+
+    public function getStatus(){
+        return $this->http_status;
     }
 
 }
