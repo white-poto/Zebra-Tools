@@ -13,6 +13,10 @@ namespace Jenner\Zebra\Tools;
  * Class CommonArray
  * @package Jenner\Zebra\Tools
  */
+/**
+ * Class CommonArray
+ * @package Jenner\Zebra\Tools
+ */
 class CommonArray {
     /**
      * 根据列的Key获取一个二维数组中某一列的值，作为一维数组返回
@@ -69,15 +73,57 @@ class CommonArray {
     }
 
     /**
-     * object 转 array
+     * 对象转换成数组
+     * @param $obj
+     * @return mixed
      */
-    function objectToArray($obj){
+    public static function objectToArray($obj){
         $_arr = is_object($obj)? get_object_vars($obj) : $obj;
         foreach ($_arr as $key => $val) {
-            $val = (is_array($val)) || is_object($val) ? object_to_array($val) : $val;
+            $val = (is_array($val)) || is_object($val) ? self::objectToArray($val) : $val;
             $arr[$key] = $val;
         }
 
         return $arr;
+    }
+
+
+    /**
+     * 将一个二维数组，以其中一列为KEY，一列为VALUE，返回一个一维数组
+     * @param $array
+     * @param $array_key_key
+     * @param $array_value_key
+     * @return array
+     */
+    public static function tableToLine(array $array, $array_key_key, $array_value_key){
+        $result = [];
+        foreach($array as $arr){
+            if(!is_array($arr)) continue;
+            $key = $arr[$array_key_key];
+            $value = $arr[$array_value_key];
+            $result[$key] = $value;
+        }
+
+        return $result;
+    }
+
+    /**
+     * 填充数组下标，例如：
+     * [2=>1, 4=>1]
+     * [0=>1, 1=>1, 2=>1, 3=>1, 4=>1]
+     * @param array $array
+     * @param $end
+     * @param int $start
+     * @param $fill_value
+     * @return array
+     */
+    public static function fillArrayNumKey(array $array, $end, $start=0, $fill_value){
+        for(;$start<$end;$start++){
+            if(!isset($array[$start])){
+                $array[$start] = $fill_value;
+            }
+        }
+
+        return $array;
     }
 } 
