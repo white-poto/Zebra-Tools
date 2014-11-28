@@ -95,12 +95,16 @@ class CommonArray {
      * @param $array_value_key
      * @return array
      */
-    public static function tableToLine(array $array, $array_key_key, $array_value_key){
+    public static function tableToMapping(array $array, $array_key_key, $array_value_key=null){
         $result = [];
         foreach($array as $arr){
             if(!is_array($arr)) continue;
             $key = $arr[$array_key_key];
-            $value = $arr[$array_value_key];
+            if(is_null($array_value_key)){
+                $value = $arr;
+            }else{
+                $value = $arr[$array_value_key];
+            }
             $result[$key] = $value;
         }
 
