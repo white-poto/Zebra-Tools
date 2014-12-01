@@ -137,27 +137,58 @@ class CommonArray {
     }
 
     /**
+     * 填充数组下标start_date和end_date的格式必须为Y-m-d H:i:s或其截断格式，例如按天格式Y-m-d，按月格式Y-m
+     * step可以为day,month,year,second,minute,hour
+     * start_date和end_date的传入必须与step一致
+     * array的日期下标必须与step一致，例如，step为hour时，格式类似['2014-09-01 01'=>100,....]
+     * @param array $array
+     * @param $start_date
+     * @param $end_date
+     * @param string $step
+     * @param int $fill_value
+     * @return array
+     * @throws \Exception
+     */
+    public static function fillArrayDateKey(array $array, $start_date, $end_date, $step='day', $fill_value=0){
+        if(in_array($step, ['day', 'month', 'year'])){
+            return self::fillArrayDateNumKey($array, $start_date, $end_date, $step, $fill_value);
+        }elseif(in_array($step, ['second', 'minute', 'hour'])){
+            return self::fillArrayDateTimeNumKey($array, $start_date, $end_date, $step, $fill_value);
+        }else{
+            throw new \Exception('argument step error');
+        }
+    }
+
+    /**
      * 填充数组下标，下标格式为日志格式('Y-m-d')
      * @param array $array
      * @param $start_date
      * @param $end_date
      * @param $step
-     * @param $fill_date
+     * @param $fill_value
      * @throws \Exception
      * @return array
      */
-    public static function fillArrayDateNumKey(array $array, $start_date, $end_date, $step, $fill_date){
+    public static function fillArrayDateNumKey(array $array, $start_date, $end_date, $step='day', $fill_value=0){
         if(!strtotime($start_date) || !strtotime($end_date))
             throw new \Exception('date format error. right format is "Y-m-d"');
         if(!in_array($step, ['day', 'week', 'month', 'year']))
-            throw new \Exception('step param error. it should be day, week, month or year');
+            throw new \Exception('step param error. it should be day, month or year');
 
         while(strtotime($start_date)<strtotime($end_date)){
             if(!isset($array[$start_date])){
-                $array[$start_date] = $fill_date;
+                $array[$start_date] = $fill_value;
             }
-            $start_date = date("Y-m-d", strtotime($start_date . " + 1 {$step}"));
+            if($step=='day'){
+                $format = 'Y-m-d';
+            }elseif($step=='month'){
+                $format = 'Y-m';
+            }elseif($step=='year'){
+                $format = 'Y';
+            }
+            $start_date = date($format, strtotime($start_date . " + 1 {$step}"));
         }
+        ksort($array);
         return $array;
     }
 
@@ -171,18 +202,32 @@ class CommonArray {
      * @return array
      * @throws \Exception
      */
-    public static function fillArrayDateTimeNumKey(array $array, $start_time, $end_time, $step, $fill_date){
+    public static function fillArrayDateTimeNumKey(array $array, $start_time, $end_time, $step='minute', $fill_date=0){
+        if(strtolower($step)=='hour'){
+            $start_time .= ':00:00';
+            $end_time .= ':00:00';
+        }elseif($step=='minute'){
+            $start_time .= ':00';
+            $end_time .= ':00';
+        }
         if(!strtotime($start_time) || !strtotime($end_time))
             throw new \Exception('date format error. right format is "Y-m-d H:i:s"');
-        if(!in_array($step, ['day', 'week', 'month', 'year']))
-            throw new \Exception('step param error. it should be day, week, month or year');
+        if(!in_array($step, ['second', 'minute', 'hour']))
+            throw new \Exception('step param error. it should be second, minute, or hour');
 
         while(strtotime($start_time)<strtotime($end_time)){
-            if(!isset($array[$start_time])){
-                $array[$start_time] = $fill_date;
+            if($step=='hour'){
+                $temp_start_time = substr($start_time, 0, 13);
+            }elseif($step=='minute'){
+                $temp_start_time = substr($start_time, 0, 16);
+            }
+
+            if(!isset($array[$temp_start_time])){
+                $array[$temp_start_time] = $fill_date;
             }
             $start_time = date("Y-m-d H:i:s", strtotime($start_time . " + 1 {$step}"));
         }
+        ksort($array);
         return $array;
     }
 
