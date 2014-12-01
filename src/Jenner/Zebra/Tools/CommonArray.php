@@ -114,20 +114,23 @@ class CommonArray {
 
     /**
      * 将一个二维数组，以其中一列为KEY，一列为VALUE，返回一个一维数组
-     * @param $array
-     * @param $array_key_key
-     * @param $array_value_key
+     * @param array $array
+     * @param null $column_key
+     * @param $index_key
      * @return array
      */
-    public static function tableToMapping(array $array, $array_key_key, $array_value_key=null){
+    public static function arrayColumn(array $array, $column_key=null, $index_key){
+        if(function_exists('array_column ')){
+            return array_column($array, $column_key, $index_key);
+        }
         $result = [];
         foreach($array as $arr){
             if(!is_array($arr)) continue;
-            $key = $arr[$array_key_key];
-            if(is_null($array_value_key)){
+            $key = $arr[$index_key];
+            if(is_null($column_key)){
                 $value = $arr;
             }else{
-                $value = $arr[$array_value_key];
+                $value = $arr[$column_key];
             }
             //区别在这里
             $result[$key] = $value;
@@ -152,7 +155,7 @@ class CommonArray {
     public static function fillArrayDateKey(array $array, $start_date, $end_date, $step='day', $fill_value=0){
         if(in_array($step, ['day', 'month', 'year'])){
             return self::fillArrayDateNumKey($array, $start_date, $end_date, $step, $fill_value);
-        }elseif(in_array($step, ['second', 'minute', 'hour'])){
+        }elseif(in_array($step, ['second', 'minute', 'ten_minute', 'hour'])){
             return self::fillArrayDateTimeNumKey($array, $start_date, $end_date, $step, $fill_value);
         }else{
             throw new \Exception('argument step error');
@@ -209,23 +212,34 @@ class CommonArray {
         }elseif($step=='minute'){
             $start_time .= ':00';
             $end_time .= ':00';
+        }elseif($step='ten_minute'){
+            $start_time .= '0:00';
+            $end_time .= '0:00';
         }
+
         if(!strtotime($start_time) || !strtotime($end_time))
             throw new \Exception('date format error. right format is "Y-m-d H:i:s"');
-        if(!in_array($step, ['second', 'minute', 'hour']))
-            throw new \Exception('step param error. it should be second, minute, or hour');
+        if(!in_array($step, ['second', 'minute', 'ten_minute', 'hour']))
+            throw new \Exception('step param error. it should be second, minute, ten_minute, or hour');
 
         while(strtotime($start_time)<strtotime($end_time)){
             if($step=='hour'){
                 $temp_start_time = substr($start_time, 0, 13);
             }elseif($step=='minute'){
                 $temp_start_time = substr($start_time, 0, 16);
+            }elseif($step=='ten_minute'){
+                $temp_start_time = substr($start_time, 0, 15);
             }
 
             if(!isset($array[$temp_start_time])){
                 $array[$temp_start_time] = $fill_date;
             }
-            $start_time = date("Y-m-d H:i:s", strtotime($start_time . " + 1 {$step}"));
+            if($step=='ten_minute'){
+                $start_time = date("Y-m-d H:i:s", strtotime($start_time . " + 10 minute"));
+            }else{
+                $start_time = date("Y-m-d H:i:s", strtotime($start_time . " + 1 {$step}"));
+            }
+
         }
         ksort($array);
         return $array;
