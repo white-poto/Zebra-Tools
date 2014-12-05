@@ -157,6 +157,8 @@ class CommonArray {
             return self::fillArrayDateNumKey($array, $start_date, $end_date, $step, $fill_value);
         }elseif(in_array($step, ['second', 'minute', 'ten_minute', 'hour'])){
             return self::fillArrayDateTimeNumKey($array, $start_date, $end_date, $step, $fill_value);
+        }elseif($step=='week'){
+            return self::fillArrayWeekNumKey($array, $start_date, $end_date, $fill_value);
         }else{
             throw new \Exception('argument step error');
         }
@@ -178,7 +180,7 @@ class CommonArray {
         if(!in_array($step, ['day', 'week', 'month', 'year']))
             throw new \Exception('step param error. it should be day, month or year');
 
-        while(strtotime($start_date)<strtotime($end_date)){
+        while(strtotime($start_date)<=strtotime($end_date)){
             if(!isset($array[$start_date])){
                 $array[$start_date] = $fill_value;
             }
@@ -208,13 +210,13 @@ class CommonArray {
     public static function fillArrayDateTimeNumKey(array $array, $start_time, $end_time, $step='minute', $fill_date=0){
         if(strtolower($step)=='hour'){
             $start_time .= ':00:00';
-            $end_time .= ':00:00';
+            $end_time .= ':59:59';
         }elseif($step=='minute'){
             $start_time .= ':00';
-            $end_time .= ':00';
+            $end_time .= ':59';
         }elseif($step='ten_minute'){
             $start_time .= '0:00';
-            $end_time .= '0:00';
+            $end_time .= '9:59';
         }
 
         if(!strtotime($start_time) || !strtotime($end_time))
@@ -222,7 +224,7 @@ class CommonArray {
         if(!in_array($step, ['second', 'minute', 'ten_minute', 'hour']))
             throw new \Exception('step param error. it should be second, minute, ten_minute, or hour');
 
-        while(strtotime($start_time)<strtotime($end_time)){
+        while(strtotime($start_time)<=strtotime($end_time)){
             if($step=='hour'){
                 $temp_start_time = substr($start_time, 0, 13);
             }elseif($step=='minute'){
@@ -240,6 +242,30 @@ class CommonArray {
                 $start_time = date("Y-m-d H:i:s", strtotime($start_time . " + 1 {$step}"));
             }
 
+        }
+        ksort($array);
+        return $array;
+    }
+
+    /**
+     * 填充星期数组下标，下标格式为日志格式('Y-m-d H:i:s')
+     * @param array $array 数组下标必须为week of year(一年中的第几周)
+     * @param $start_time 开始日期
+     * @param $end_time 结束日期
+     * @param int $fill_value
+     * @throws \Exception
+     * @return array
+     */
+    public static function fillArrayWeekNumKey(array $array, $start_time, $end_time, $fill_value=0){
+        if(!strtotime($start_time) || !strtotime($end_time))
+            throw new \Exception('date format error. right format is "Y-m-d H:i:s"');
+
+        while(strtotime($start_time)<=strtotime($end_time)){
+            $week = intval(date('W', strtotime($start_time)));
+            if(!isset($array[$week])){
+                $array[$week] = $fill_value;
+            }
+            $start_time = date("Y-m-d H:i:s", strtotime($start_time . " + 1 Week"));
         }
         ksort($array);
         return $array;
