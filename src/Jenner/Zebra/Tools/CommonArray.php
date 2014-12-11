@@ -59,6 +59,12 @@ class CommonArray {
         return $result;
     }
 
+    /**
+     * 过滤一个一位数组的columns，只保留指定的columns
+     * @param $array
+     * @param $columns
+     * @return array
+     */
     public static function filterColumn($array, $columns){
         $result = [];
         foreach($array as $key=>$value){
