@@ -73,4 +73,15 @@ class CommonDate {
 
         return $week_result;
     }
+
+    public static function getWeekNumByDate($date){
+        $weeks = self::getWeeksOfYear(substr($date, 0, 4));
+        if(empty($weeks)) return false;
+        foreach($weeks as $key=>$week){
+            if($date>=$week[0] && $date<=$week[1]){
+                return $key;
+            }
+        }
+        return false;
+    }
 } 

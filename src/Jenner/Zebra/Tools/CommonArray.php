@@ -327,6 +327,46 @@ class CommonArray {
         return $array;
     }
 
+    public static function convertEncoding($array, $to_encoding, $from_encoding){
+        array_walk_recursive($array, function(&$item, $key) use($to_encoding, $from_encoding){
+            $item = mb_convert_encoding($item, $to_encoding, $from_encoding);
+        });
+        return $array;
+    }
+
+    public static function columnMergeByKey($array_1, $array_2){
+        $result = [];
+        foreach($array_1 as $key=>$value){
+            foreach($array_2 as $key_2=>$value_2){
+                if($key==$key_2){
+                    $result[$key][] = $value;
+                    $result[$key][] = $value_2;
+                    break;
+                }
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * 根据两个二维数组的一位下标，进行数组合并
+     * @param $array_1
+     * @param $array_2
+     * @return array
+     */
+    public static function mergeByKey($array_1, $array_2)
+    {
+        $result = [];
+        foreach ($array_1 as $key_1 => $value_1) {
+            foreach ($array_2 as $key_2 => $value_2) {
+                if ($key_1 == $key_2) {
+                    $result[$key_1] = array_merge($value_1, $value_2);
+                }
+            }
+        }
+
+        return $result;
+    }
 }
 
 if ( ! function_exists( 'array_column_recursive' ) ) {
