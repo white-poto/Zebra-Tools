@@ -68,7 +68,7 @@ class Http {
     public function GET($params = null) {
 
         //组合带参数的URL
-        $url = $this->url;
+        $url = &$this->url;
         if ($params && is_array($params)) {
             $url .= '?';
             $amp = '';
@@ -84,7 +84,7 @@ class Http {
         $this->initCurlParam($curl);
 
         $content = curl_exec($curl);
-        $this->http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $this->httpStatus = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
 
         return $content;
@@ -124,7 +124,7 @@ class Http {
         }
 
         $content = curl_exec($curl);
-        $this->http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $this->httpStatus = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
 
         return $content;

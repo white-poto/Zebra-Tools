@@ -8,8 +8,6 @@
 
 namespace Jenner\Zebra\Tools;
 
-use Illuminate\Support\Contracts\ArrayableInterface;
-
 /**
  * Class CommonArray
  * @package Jenner\Zebra\Tools
@@ -153,13 +151,18 @@ class CommonArray
      * @param array $array
      * @param null $column_key
      * @param $index_key
+     * @throws \Exception
      * @return array
      */
-    public static function arrayColumn(array $array, $column_key, $index_key = null)
+    public static function arrayColumn($array, $column_key, $index_key = null)
     {
+        if(!is_array($array) || !($array instanceof \ArrayAccess))
+            throw new \Exception('Argument 1 passed to Jenner\Zebra\Tools\CommonArray::arrayColumn() must be of the type array');
+
         if (function_exists('array_column ')) {
             return array_column($array, $column_key, $index_key);
         }
+
         $result = [];
         foreach ($array as $arr) {
 
@@ -414,20 +417,59 @@ class CommonArray
     {
         $result = [];
         foreach ($array as $key => $value) {
-            if (!isset($result[$parent_key]) || empty($result['pid'])) {
+            if (!isset($value[$parent_key]) || empty($value[$parent_key])) {
                 $result[] = $value;
                 unset($array[$key]);
             }
         }
+
         foreach ($result as $key => $parent_value) {
             foreach ($array as $value) {
                 if ($value[$parent_key] == $parent_value[$primary_key]) {
-                    $result[$key][$sub_key] = $value;
+                    if(!isset($result[$key][$sub_key])) $result[$key][$sub_key] = [];
+                    $result[$key][$sub_key][] = $value;
                 }
             }
         }
 
         return $result;
+    }
+
+
+    /**
+     * Groups an array by a given key. Any additional keys will be used for grouping
+     * the next set of sub-arrays.
+     *
+     * @author Jake Zatecky
+     *
+     * @param array $arr The array to have grouping performed on.
+     * @param mixed $key The key to group or split by.
+     *
+     * @return array
+     */
+    static function groupBy($arr, $key)
+    {
+        if (!is_array($arr)) {
+            trigger_error("array_group_by(): The first argument should be an array", E_USER_ERROR);
+        }
+        if (!is_string($key) && !is_int($key) && !is_float($key)) {
+            trigger_error("array_group_by(): The key should be a string or an integer", E_USER_ERROR);
+        }
+        // Load the new array, splitting by the target key
+        $grouped = array();
+        foreach ($arr as $value) {
+            $grouped[$value[$key]][] = $value;
+        }
+        // Recursively build a nested grouping if more parameters are supplied
+        // Each grouped array value is grouped according to the next sequential key
+        if (func_num_args() > 2) {
+            $args = func_get_args();
+            foreach ($grouped as $key => $value) {
+                $params = array_merge(array($value), array_slice($args, 2, func_num_args()));
+                $grouped[$key] = call_user_func_array("\\Jenner\\Zebra\\Tools\\CommonArray::groupBy", $params);
+            }
+        }
+        return $grouped;
     }
 }
 
