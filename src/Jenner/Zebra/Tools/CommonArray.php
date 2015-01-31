@@ -471,6 +471,33 @@ class CommonArray
         }
         return $grouped;
     }
+
+    /**
+     * 一位数组求平均值
+     * @param $array
+     * @return float
+     */
+    public static function arrayAverage($array){
+        $sum = 0;
+        array_walk($array, function(&$item) use(&$sum){
+            $item = floatval($item);
+            $sum += $item;
+        });
+
+        return $sum / count($array);
+    }
+
+    /**
+     * 获取数组第一个值
+     * @param $array
+     * @return mixed
+     */
+    public static function arrayFirstValue($array)
+    {
+        foreach ($array as $value) {
+            return $value;
+        }
+    }
 }
 
 if (!function_exists('array_column_recursive')) {
