@@ -156,7 +156,7 @@ class CommonArray
      */
     public static function arrayColumn($array, $column_key, $index_key = null)
     {
-        if(!is_array($array) || !($array instanceof \ArrayAccess))
+        if(!is_array($array) && !($array instanceof \ArrayAccess))
             throw new \Exception('Argument 1 passed to Jenner\Zebra\Tools\CommonArray::arrayColumn() must be of the type array');
 
         if (function_exists('array_column ')) {
