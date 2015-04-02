@@ -498,6 +498,23 @@ class CommonArray
             return $value;
         }
     }
+
+    public static function arrayOrderByKey($array, $key_orders = []){
+        if(empty($key_orders)){
+            return ksort($array);
+        }
+
+        $result = [];
+        foreach($array as $value){
+            $record = [];
+            foreach($key_orders as $order_key){
+                $record[$order_key] = $value[$order_key];
+            }
+            $result[] = $record;
+        }
+
+        return $result;
+    }
 }
 
 if (!function_exists('array_column_recursive')) {
